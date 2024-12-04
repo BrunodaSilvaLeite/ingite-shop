@@ -6,7 +6,7 @@ export const ContinaerSidebar = styled('aside', {
   flexDirection: 'column',
   top: '0',
   right: '-18.5rem',
-  width: '25rem',
+  width: '23rem',
   height: '100%',
   backgroundColor: '$gray800',
   boxShadow: '-2px 0 5px rgba(0, 0, 0, 0.5)',
@@ -23,11 +23,7 @@ export const ContinaerSidebar = styled('aside', {
       },
     },
   },
-  img: {
-    cursor: 'pointer',
-    position: 'absolute',
-    right: '2rem',
-  },
+
   h2: {
     fontSize: '$xl',
     fontWeight: 'bold',
@@ -35,6 +31,29 @@ export const ContinaerSidebar = styled('aside', {
     marginBottom: '1rem',
   },
 })
+export const CloseButton = styled('button', {
+  background: 'transparent',
+  border: 'none',
+  cursor: 'pointer',
+  display: 'flex',
+
+  padding: '0',
+  transition: 'transform 0.3s ease',
+
+  '&:hover': {
+    transform: 'scale(1.01)', // Um pequeno aumento do ícone no hover
+  },
+
+  '&:focus': {
+    outline: 'none', // Remover a borda de foco
+  },
+
+  // Garantir que o ícone de imagem não ultrapasse o limite
+  '& img': {
+    width: '24px',
+    height: '24px',
+  },
+});
 export const ProductCartContainer = styled('div', {
   display: 'flex',
   flexDirection: 'column',
@@ -88,6 +107,11 @@ export const ProductCart = styled('div', {
       color: '$green300',
     },
   },
+  button: {
+    background: 'blue',
+    border: 'none',
+    width: '0px'
+  }
 })
 
 export const ImageContainerCart = styled('div', {
@@ -97,12 +121,13 @@ export const ImageContainerCart = styled('div', {
   background: 'linear-gradient(180deg, #1ea483 0%, #7465d4 100%)',
   borderRadius: 8,
   padding: '0.25rem',
-  display: 'flex',
-  alignItems: 'center',
-  justifyContent: 'center',
+  overflow: 'hidden', // Adiciona isso para forçar o limite de overflow do contêiner
 
   img: {
-    objectFit: 'cover',
+    width: '100%', // Ajusta a largura para o contêiner
+    height: '100%', // Ajusta a altura para o contêiner
+    objectFit: 'cover', // Mantém o aspecto da imagem
+
   },
 })
 

@@ -8,23 +8,20 @@ import { GetStaticPaths, GetStaticProps } from 'next'
 import Stripe from 'stripe'
 import { stripe } from '../../lib/stripe'
 import Image from 'next/image'
-import { useState } from 'react'
+import { useContext, useState } from 'react'
 import axios from 'axios'
 import Head from 'next/head'
+import { CartContext } from '@/src/context/cartContext'
+import { ProductInterface } from '@/src/interfaces/Product'
 
 interface ProductProps {
-  product: {
-    id: string
-    name: string
-    imageUrl: string
-    price: string
-    description: string
-    defaultPriceId: string
-  }
+  product: ProductInterface
 }
 export default function Product({ product }: ProductProps) {
   const [isCreatingCheckoutSession, setIsCreatingCheckoutSession] =
     useState(false)
+
+  const { addItem } = useContext(CartContext)
 
   async function handleBuyButton() {
     try {
@@ -73,7 +70,7 @@ export default function Product({ product }: ProductProps) {
 
           <button
             disabled={isCreatingCheckoutSession}
-            onClick={handleBuyButton}
+            onClick={() => addItem(product)}
           >
             Comprar agora
           </button>
@@ -106,9 +103,9 @@ export const getStaticProps: GetStaticProps<any, { id: string }> = async ({
   const formattedPrice =
     price.unit_amount !== null
       ? new Intl.NumberFormat('pt-BR', {
-          style: 'currency',
-          currency: 'BRL',
-        }).format(price.unit_amount / 100)
+        style: 'currency',
+        currency: 'BRL',
+      }).format(price.unit_amount / 100)
       : 'N/A'
 
   return {

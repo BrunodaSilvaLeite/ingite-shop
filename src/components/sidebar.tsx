@@ -4,9 +4,13 @@ import {
   ImageContainerCart,
   FooterSidebar,
   ProductCartContainer,
+  CloseButton,
 } from '../styles/sidebar'
 import close from '../assets/close.png'
 import Image from 'next/image'
+import { useContext, useState } from 'react'
+import { CartContext } from '../context/cartContext'
+import axios from 'axios'
 
 interface SidebarProps {
   isSidebarVisible: boolean
@@ -16,49 +20,78 @@ export default function Sidebar({
   isSidebarVisible,
   toggleSidebar,
 }: SidebarProps) {
+
+  const { addItem, cart, removeItem } = useContext(CartContext)
+  const [isCreatingCheckoutSession, setIsCreatingCheckoutSession] = useState(false)
+
+  async function handleBuyButton() {
+    try {
+      setIsCreatingCheckoutSession(true);
+
+      // Agrupar produtos dentro do bloco try
+      const groupedProduct = cart.items.reduce((acc, product) => {
+        const existing = acc.find(item => item.price === product.id);
+        if (existing) {
+          existing.quantity += 1; // Incrementar a quantidade
+        } else {
+          acc.push({ price: product.defaultPriceId, quantity: 1 }); // Adicionar o item pela primeira vez
+        }
+        return acc;
+      }, [] as { price: string; quantity: number }[]);
+
+      const response = await axios.post('/api/checkout', {
+        products: groupedProduct
+      },
+      );
+
+      const checkoutUrl = response.data.checkoutUrl; // Corrigir para o nome correto da chave
+      if (checkoutUrl) {
+        window.location.assign(checkoutUrl);
+      } else {
+        throw new Error('URL de checkout não encontrada');
+      }
+    } catch (err) {
+      setIsCreatingCheckoutSession(false);
+      console.error(err);
+      alert('Falha ao redirecionar ao checkout!');
+    }
+  }
+
   return (
     <>
       <ContinaerSidebar isVisible={isSidebarVisible}>
-        <Image src={close} alt="" onClick={() => toggleSidebar(false)} />
+        <CloseButton onClick={() => toggleSidebar(false)}>
+          <Image src={close} alt="Fechar" width={24} height={24} />
+        </CloseButton>
         <h2>Sacola de compras</h2>
         <ProductCartContainer>
-          <ProductCart>
-            <ImageContainerCart></ImageContainerCart>
-            <div>
-              <h3>Camiseta Beyond the Limits</h3>
-              <span>R$ 75,00</span>
-              <p>Remover</p>
-            </div>
-          </ProductCart>
 
-          <ProductCart>
-            <ImageContainerCart></ImageContainerCart>
-            <div>
-              <h3>Camiseta Beyond the Limits</h3>
-              <span>R$ 75,00</span>
-              <p>Remover</p>
-            </div>
-          </ProductCart>
+          {cart.items?.map((item) => {
+            return (
+              <ProductCart>
+                <ImageContainerCart><img src={item.imageUrl} alt="" /></ImageContainerCart>
+                <div>
 
-          <ProductCart>
-            <ImageContainerCart></ImageContainerCart>
-            <div>
-              <h3>Camiseta Beyond the Limits</h3>
-              <span>R$ 75,00</span>
-              <p>Remover</p>
-            </div>
-          </ProductCart>
+                  <h3>{item.name}</h3>
+                  <span>R$ {item.price}</span>
+                  <button onClick={() => removeItem(item.id)}><p>Remover</p></button>
+                </div>
+              </ProductCart>
+            )
+          })
+          }
+
         </ProductCartContainer>
         <FooterSidebar>
           <div>
             <span>Quantidade</span>
-            <span>3 itens</span>
+            <span>{cart.items.length}</span>
           </div>
           <div>
             <span>Valor total</span>
-            <h3>R$ 280,00</h3>
+            <h3>R$ {cart.total}</h3>
           </div>
-          <button>Finalizar Compra</button>
+          <button onClick={() => handleBuyButton()}>Finalizar Compra</button>
         </FooterSidebar>
       </ContinaerSidebar>
     </>

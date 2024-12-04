@@ -15,19 +15,17 @@ import Link from 'next/link'
 import Head from 'next/head'
 import { useContext, useState } from 'react'
 import Arrow from '../components/arrow'
-import { CartContext } from './_app'
+import { CartContext } from '../context/cartContext'
+import { ProductInterface } from '@/src/interfaces/Product'
 
 export interface ProductsProps {
-  products: {
-    id: string
-    name: string
-    imageUrl: string
-    price: string
-  }[]
+  products: ProductInterface[];
 }
+
 
 export default function Home({ products }: ProductsProps) {
   const { addItem } = useContext(CartContext)
+
   const [currentSlide, setCurrentSlide] = useState(0)
 
   const [loaded, setLoaded] = useState(false)
@@ -47,6 +45,10 @@ export default function Home({ products }: ProductsProps) {
       setLoaded(true)
     },
   })
+
+  function addItemInCart(product: ProductInterface) {
+    addItem(product)
+  }
 
   return (
     <>
@@ -80,7 +82,7 @@ export default function Home({ products }: ProductsProps) {
                   <strong>{product.name}</strong>
                   <span>{product.price}</span>
                 </div>
-                <button onClick={() => addItem(product)}>
+                <button onClick={() => addItemInCart(product)}>
                   <Image src={iconCart} alt="" width={24} height={24} />
                 </button>
               </footer>
@@ -127,9 +129,9 @@ export const getStaticProps: GetStaticProps = async () => {
     const formattedPrice =
       price.unit_amount !== null
         ? new Intl.NumberFormat('pt-BR', {
-            style: 'currency',
-            currency: 'BRL',
-          }).format(price.unit_amount / 100)
+          style: 'currency',
+          currency: 'BRL',
+        }).format(price.unit_amount / 100)
         : 'N/A'
 
     return {
@@ -137,6 +139,8 @@ export const getStaticProps: GetStaticProps = async () => {
       name: product.name,
       imageUrl: product.images[0],
       price: formattedPrice,
+      description: product.description,
+      defaultPriceId: price?.id,
     }
   })
 

@@ -1,9 +1,16 @@
 {
-  "extends": [
-    "@rocketseat/eslint-config/react"
-  ],
+  "extends": [],
   "rules": {
+    "no-unused-vars": "error",
+    "no-undef": "error",
+    "semi": [
+      "error",
+      "never"
+    ],
+    "quotes": [
+      "error",
+      "double"
+    ],
     "@typescript-eslint/no-explicit-any": "off"
   }
-
 }
